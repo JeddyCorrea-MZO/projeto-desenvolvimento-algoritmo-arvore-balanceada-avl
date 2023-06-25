@@ -1,0 +1,163 @@
+Projeto 5 - Dio.me - Desenvolvimento de um algoritmo para busca em árvores balanceadas em Linguagem C++
+
+************
+
+Árvores balanceadas são estruturas de dados que permitem buscas rápidas e eficientes. 
+Existem vários tipos de árvores balanceadas, como AVL, Red-Black e B-trees.
+
+Uma árvore AVL é um tipo de árvore binária de busca balanceada. 
+As árvores AVL possuem a propriedade de autobalanceamento dinâmico, além de todas as outras propriedades mostradas pelas árvores binárias de busca2l.
+
+Isso significa que as árvores AVL minimizam o número de comparações efetuadas no pior caso para uma busca com chaves de probabilidades de ocorrências idênticas.
+
+Para garantir essa propriedade em aplicações dinâmicas, é preciso reconstruir a árvore para seu estado ideal a cada operação sobre seus nós (inclusão ou exclusão), para ser alcançado um custo de algoritmo com o tempo de pesquisa tendendo a O(log n).
+
+#include <iostream>
+using namespace std;
+
+// Estrutura do nó da árvore AVL
+struct Node {
+    int key;
+    Node *left;
+    Node *right;
+    int height;
+};
+
+// Função para alocar um novo nó com a chave fornecida e NULL como filhos esquerdo e direito
+Node* newNode(int key) {
+    Node* node = new Node;
+    node->key = key;
+    node->left = NULL;
+    node->right = NULL;
+    node->height = 1; // novo nó é adicionado inicialmente na folha
+    return(node);
+}
+
+// Função para obter a altura da árvore
+int height(Node *N) {
+    if (N == NULL)
+        return 0;
+    return N->height;
+}
+
+// Função para obter o máximo de dois inteiros
+int max(int a, int b) {
+    return (a > b)? a : b;
+}
+
+// Função para rotacionar à direita o subárvore enraizada com y
+Node *rightRotate(Node *y) {
+    Node *x = y->left;
+    Node *T2 = x->right;
+
+    // Executa a rotação
+    x->right = y;
+    y->left = T2;
+
+    // Atualiza as alturas
+    y->height = max(height(y->left), height(y->right))+1;
+    x->height = max(height(x->left), height(x->right))+1;
+
+    // Retorna a nova raiz
+    return x;
+}
+
+// Função para rotacionar à esquerda o subárvore enraizada com x
+Node *leftRotate(Node *x) {
+    Node *y = x->right;
+    Node *T2 = y->left;
+
+    // Executa a rotação
+    y->left = x;
+    x->right = T2;
+
+    // Atualiza as alturas
+    x->height = max(height(x->left), height(x->right))+1;
+
+y->height = max(height(y->left), height(y->right))+1;
+
+    // Retorna a nova raiz
+    return y;
+}
+
+// Obtém o fator de balanceamento do nó N
+int getBalance(Node *N) {
+    if (N == NULL)
+        return 0;
+    return height(N->left) - height(N->right);
+}
+
+// Função recursiva para inserir uma chave na subárvore enraizada com nó e retorna a nova raiz da subárvore.
+Node* insert(Node* node, int key) {
+    // 1. Executa a inserção normal de árvore binária de busca
+    if (node == NULL)
+        return(newNode(key));
+
+    if (key < node->key)
+        node->left = insert(node->left, key);
+    else if (key > node->key)
+        node->right = insert(node->right, key);
+    else // Chaves iguais não são permitidas na árvore AVL
+        return node;
+
+    // 2. Atualiza a altura do nó ancestral
+    node->height = 1 + max(height(node->left), height(node->right));
+
+    // 3. Obtém o fator de balanceamento do nó ancestral para verificar se este nó ficou desbalanceado
+    int balance = getBalance(node);
+
+    // Se o nó ficou desbalanceado, então há 4 casos
+
+    // Caso esquerda esquerda
+    if (balance > 1 && key < node->left->key)
+        return rightRotate(node);
+
+    // Caso direita direita
+    if (balance < -1 && key > node->right->key)
+        return leftRotate(node);
+
+    // Caso esquerda direita
+    if (balance > 1 && key > node->left->key) {
+        node->left = leftRotate(node->left);
+        return rightRotate(node);
+    }
+
+// Caso direita esquerda if (balance < -1 && key < node->right->key) { node->right = rightRotate(node->right); return leftRotate(node); }
+
+// Retorna o nó ponteiro (inalterado)
+return node;
+
+}
+
+// Função para percorrer a árvore em ordem 
+
+void inOrder(Node *root) { 
+
+	if(root != NULL) { 
+	
+		inOrder(root->left); 
+		cout << root->key << " "; inOrder(root->right); 
+   	} 
+    }
+
+int main() { 
+
+	Node *root = NULL;
+
+	// Construindo a árvore 
+	root = insert(root, 10); 
+	root = insert(root, 20); 
+	root = insert(root, 30); 
+	root = insert(root, 40); 
+	root = insert(root, 50); 
+	root = insert(root, 25);
+
+	// Percorrendo a árvore em ordem 
+	cout << "Percorrendo a árvore em ordem: "; 
+	inOrder(root);
+
+    return 0; 
+
+}
+
+************
